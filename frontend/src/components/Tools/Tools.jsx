@@ -3,8 +3,10 @@ import UrlChecker from "./UrlChecker";
 
 const Tools = () => {
   return (
-    <section id="tools" className="py-20 px-6 bg-[#020617] relative overflow-hidden">
-
+    <section
+      id="tools"
+      className="py-20 px-6 bg-[#020617] relative overflow-hidden"
+    >
       {/* Glow Effects */}
       <div className="absolute top-10 left-10 w-72 h-72 bg-cyan-500/10 blur-[120px] rounded-full"></div>
       <div className="absolute bottom-10 right-10 w-72 h-72 bg-blue-500/10 blur-[120px] rounded-full"></div>
@@ -22,8 +24,17 @@ const Tools = () => {
 
         {/* Tools Grid */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <EmailAnalyzer />
-          <UrlChecker />
+
+          {/* ✅ ADD THIS ID */}
+          <div id="email-analyzer">
+            <EmailAnalyzer />
+          </div>
+
+          {/* ✅ ADD THIS ID */}
+          <div id="url-checker">
+            <UrlChecker />
+          </div>
+
         </div>
 
       </div>

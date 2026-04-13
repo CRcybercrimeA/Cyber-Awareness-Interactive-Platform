@@ -1,27 +1,57 @@
 import { useState } from "react";
 import { Mail, Search } from "lucide-react";
+import API from "../../api/api";
 
 const EmailAnalyzer = () => {
   const [emailText, setEmailText] = useState("");
   const [risk, setRisk] = useState(null);
 
-  const analyzeEmail = () => {
-    if (!emailText) return;
+  const analyzeEmail = async () => {
+  if (!emailText) return;
 
-    let score = 20;
+  try {
+    const res = await API.post(
+      "/email/check",
+      {
+        senderEmail: emailText   // 👈 since your backend expects senderEmail
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      }
+    );
 
-    if (emailText.toLowerCase().includes("win")) score += 30;
-    if (emailText.includes("http")) score += 30;
-    if (emailText.toLowerCase().includes("urgent")) score += 20;
+    const data = res.data.data;
 
-    if (score > 70) {
-      setRisk({ level: "High Risk", color: "bg-red-500", width: "90%" });
-    } else if (score > 40) {
-      setRisk({ level: "Medium Risk", color: "bg-yellow-400", width: "60%" });
-    } else {
-      setRisk({ level: "Low Risk", color: "bg-green-400", width: "30%" });
+    // Convert backend response to UI format
+    let color = "bg-green-400";
+    let width = "30%";
+
+    if (data.riskLevel === "High Risk") {
+      color = "bg-red-500";
+      width = "90%";
+    } else if (data.riskLevel === "Suspicious") {
+      color = "bg-yellow-400";
+      width = "60%";
     }
-  };
+
+    setRisk({
+      level: data.riskLevel,
+      color,
+      width
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    setRisk({
+      level: "Error",
+      color: "bg-gray-400",
+      width: "0%"
+    });
+  }
+};
 
   return (
     <div className="p-6 rounded-2xl border border-white/10 bg-[#020617]/80 backdrop-blur-xl shadow-lg">
@@ -36,7 +66,7 @@ const EmailAnalyzer = () => {
       <textarea
         value={emailText}
         onChange={(e) => setEmailText(e.target.value)}
-        placeholder="Paste email content or headers here..."
+        placeholder="Enter sender email (example: support@paypal.com)"
         className="w-full h-32 p-3 rounded-lg bg-black/40 border border-white/10 outline-none text-sm"
       />
 

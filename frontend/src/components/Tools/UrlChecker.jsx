@@ -1,29 +1,43 @@
 import { useState } from "react";
 import { Link, Shield } from "lucide-react";
+import API from "../../api/api";
 
 const UrlChecker = () => {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState(null);
 
-  const checkUrl = () => {
-    if (!url) return;
+ const checkUrl = async () => {
+  if (!url) return;
 
-    const isSecure = url.startsWith("https");
+  try {
+    const res = await API.post(
+      "/url/check",
+      { url },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      }
+    );
 
-    if (isSecure) {
-      setResult({
-        safe: true,
-        ssl: "Valid",
-        reputation: "Trusted",
-      });
-    } else {
-      setResult({
-        safe: false,
-        ssl: "Invalid",
-        reputation: "Suspicious",
-      });
-    }
-  };
+    const data = res.data.data;
+
+    setResult({
+      safe: data.status === "Safe to visit",
+      ssl: data.sslStatus,
+      reputation: data.reputation,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    setResult({
+      safe: false,
+      ssl: "Error",
+      reputation: "Unknown",
+    });
+  }
+};
 
   return (
     <div className="p-6 rounded-2xl border border-white/10 bg-[#020617]/80 backdrop-blur-xl shadow-lg">
